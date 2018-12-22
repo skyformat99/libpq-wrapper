@@ -1,0 +1,64 @@
+#définition des cibles particulières
+.PHONY: all mrpropre build
+
+# désactivation des règles implicites
+.SUFFIXES:
+# nom de l'executable :
+PROJET = libpqwrp
+
+OBJLIB = $(PROJET).a
+
+# Addresse   , sources, lib , objets , includes :
+SRCDIR = $(CURDIR)/src/
+ 
+LIBDIR = $(CURDIR)/lib/
+
+OBJDIR = $(CURDIR)/obj/
+
+
+
+
+INCLUDES = \
+-I /usr/include/postgresql/ \
+-I /usr/include/postgresql/libpq/ \
+-I $(CURDIR)/ \
+-I $(SRCDIR) \
+-I $(OBJDIR)
+
+
+# choix du compilateur :
+CXX = g++
+# options compilations :   
+CXXFLAGS=  -fexpensive-optimizations -O2 -Os  -Wmain -pedantic-errors -Wfatal-errors -Wall -Wextra -std=c++17   -Wparentheses 
+
+
+
+OBJCPP = $(patsubst %.cpp,$(OBJDIR)%.o,$(notdir $(wildcard $(SRCDIR)*.cpp)))
+
+
+all : $(PROJET)
+ 
+$(PROJET) : $(OBJCPP)
+		ar -r -s $(LIBDIR)$(OBJLIB)  $^
+ 
+ifdef TEST
+	ar -t $(LIBDIR)$(OBJLIB)
+endif
+
+$(OBJDIR)%.o: $(SRCDIR)%.cpp
+	$(CXX)  $(CXXFLAGS) $(INCLUDES)  -c $< -o $@ 
+
+
+msg: mrpropre
+
+# pour effacer tous les objet et les executables :
+mrpropre:
+	
+	rm -rf $(OBJDIR)*.*  
+	rm -rf $(LIBDIR)*.*
+
+	
+# affiche la taille de l'objet résultant
+build: 
+
+	du -sh $(LIBDIR)$(OBJLIB)
